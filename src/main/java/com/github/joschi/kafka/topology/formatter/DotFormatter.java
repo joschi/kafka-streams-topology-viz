@@ -47,6 +47,15 @@ public class DotFormatter implements TopologyFormatter {
             sb.append("    }\n\n");
         }
 
+        // Process topics (not in a cluster)
+        if (!topology.getTopics().isEmpty()) {
+            sb.append("    // Topics\n");
+            for (TopologyNode topic : topology.getTopics().values()) {
+                appendNodeDefinition(sb, topic, "    ");
+            }
+            sb.append("\n");
+        }
+
         // Process state stores (not in a cluster)
         if (!topology.getStateStores().isEmpty()) {
             sb.append("    // State Stores\n");
@@ -81,6 +90,33 @@ public class DotFormatter implements TopologyFormatter {
                           .append(" -> ")
                           .append(sanitizeNodeId(successor))
                           .append(";\n");
+                    }
+                }
+            }
+        }
+
+        // Add edges from topics to sources and from sinks to topics
+        if (!topology.getTopics().isEmpty()) {
+            sb.append("\n");
+            sb.append("    // Topic Connections\n");
+            for (TopologySubtopology subtopology : topology.getSubtopologies().values()) {
+                for (TopologyNode node : subtopology.getNodes().values()) {
+                    if (node.getType() == NodeType.SOURCE && !node.getTopics().isEmpty()) {
+                        for (String topicName : node.getTopics()) {
+                            sb.append("    ")
+                              .append(sanitizeNodeId(topicName))
+                              .append(" -> ")
+                              .append(sanitizeNodeId(node.getName()))
+                              .append(";\n");
+                        }
+                    } else if (node.getType() == NodeType.SINK && !node.getTopics().isEmpty()) {
+                        for (String topicName : node.getTopics()) {
+                            sb.append("    ")
+                              .append(sanitizeNodeId(node.getName()))
+                              .append(" -> ")
+                              .append(sanitizeNodeId(topicName))
+                              .append(";\n");
+                        }
                     }
                 }
             }
@@ -142,16 +178,8 @@ public class DotFormatter implements TopologyFormatter {
     }
 
     private String buildNodeLabel(TopologyNode node) {
-        StringBuilder label = new StringBuilder();
-        label.append(node.getName());
-
-        if (!node.getTopics().isEmpty()) {
-            String topics = node.getTopics().stream()
-                    .collect(Collectors.joining(", "));
-            label.append("\nTopics: ").append(topics);
-        }
-
-        return label.toString();
+        // Just return the node name - topics are now separate entities
+        return node.getName();
     }
 
     private String getNodeStyle(TopologyNode node) {
@@ -159,6 +187,7 @@ public class DotFormatter implements TopologyFormatter {
             case SOURCE -> ", shape=ellipse, fillcolor=\"#90EE90\", color=\"#2F4F2F\", penwidth=2";
             case PROCESSOR -> ", shape=box, fillcolor=\"#87CEEB\", color=\"#4682B4\", penwidth=2";
             case SINK -> ", shape=ellipse, fillcolor=\"#FFB6C1\", color=\"#8B4513\", penwidth=2";
+            case TOPIC -> ", shape=parallelogram, fillcolor=\"#DDA0DD\", color=\"#8B008B\", penwidth=2";
             case STATE_STORE -> ", shape=cylinder, fillcolor=\"#FFA500\", color=\"#FF6347\", penwidth=2";
             case GLOBAL_STORE -> ", shape=hexagon, fillcolor=\"#FFD700\", color=\"#FF8C00\", penwidth=3, style=\"filled,dashed\"";
         };

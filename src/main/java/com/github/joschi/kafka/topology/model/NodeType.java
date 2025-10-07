@@ -27,5 +27,10 @@ public enum NodeType {
     /**
      * State store used by processors for stateful operations.
      */
-    STATE_STORE
+    STATE_STORE,
+
+    /**
+     * Kafka topic that sources read from or sinks write to.
+     */
+    TOPIC
 }

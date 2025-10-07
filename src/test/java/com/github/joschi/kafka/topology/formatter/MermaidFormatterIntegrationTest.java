@@ -41,17 +41,26 @@ class MermaidFormatterIntegrationTest {
         assertThat(output).contains("%% Subtopology 1");
 
         // Verify key nodes from subtopology 0 with stadium shapes for sources/sinks
-        assertThat(output).contains("KSTREAM_SOURCE_0000000000([KSTREAM-SOURCE-0000000000");
-        assertThat(output).contains("Topics: conversation-meta");
+        assertThat(output).contains("KSTREAM_SOURCE_0000000000([KSTREAM-SOURCE-0000000000])");
         assertThat(output).contains("KSTREAM_TRANSFORM_0000000001[KSTREAM-TRANSFORM-0000000001]");
-        assertThat(output).contains("KSTREAM_SINK_0000000004([KSTREAM-SINK-0000000004");
-        assertThat(output).contains("Topics: count-resolved-repartition");
+        assertThat(output).contains("KSTREAM_SINK_0000000004([KSTREAM-SINK-0000000004])");
 
         // Verify key nodes from subtopology 1
-        assertThat(output).contains("KSTREAM_SOURCE_0000000006([KSTREAM-SOURCE-0000000006");
+        assertThat(output).contains("KSTREAM_SOURCE_0000000006([KSTREAM-SOURCE-0000000006])");
         assertThat(output).contains("KSTREAM_AGGREGATE_0000000003[KSTREAM-AGGREGATE-0000000003]");
-        assertThat(output).contains("KSTREAM_SINK_0000000008([KSTREAM-SINK-0000000008");
-        assertThat(output).contains("Topics: streams-count-resolved");
+        assertThat(output).contains("KSTREAM_SINK_0000000008([KSTREAM-SINK-0000000008])");
+
+        // Verify topics as separate entities
+        assertThat(output).contains("%% Topics");
+        assertThat(output).contains("conversation_meta[/conversation-meta/]");
+        assertThat(output).contains("count_resolved_repartition[/count-resolved-repartition/]");
+        assertThat(output).contains("streams_count_resolved[/streams-count-resolved/]");
+
+        // Verify topic connections
+        assertThat(output).contains("conversation_meta --> KSTREAM_SOURCE_0000000000");
+        assertThat(output).contains("KSTREAM_SINK_0000000004 --> count_resolved_repartition");
+        assertThat(output).contains("count_resolved_repartition --> KSTREAM_SOURCE_0000000006");
+        assertThat(output).contains("KSTREAM_SINK_0000000008 --> streams_count_resolved");
 
         // Verify edges within subtopologies (solid arrows)
         assertThat(output).contains("KSTREAM_SOURCE_0000000000 --> KSTREAM_TRANSFORM_0000000001");
@@ -91,17 +100,20 @@ class MermaidFormatterIntegrationTest {
 
         // Verify nodes from subtopology 0
         assertThat(output).contains("KSTREAM_SOURCE_0000000000");
-        assertThat(output).contains("Topics: input-topic");
         assertThat(output).contains("KSTREAM_MAPVALUES_0000000001");
         assertThat(output).contains("KSTREAM_FILTER_0000000002");
         assertThat(output).contains("KSTREAM_SINK_0000000003");
-        assertThat(output).contains("Topics: output-topic");
 
         // Verify nodes from subtopology 1
         assertThat(output).contains("KSTREAM_SOURCE_0000000004");
-        assertThat(output).contains("Topics: another-topic");
         assertThat(output).contains("KSTREAM_SINK_0000000005");
-        assertThat(output).contains("Topics: result-topic");
+
+        // Verify topics as separate entities
+        assertThat(output).contains("%% Topics");
+        assertThat(output).contains("input_topic[/input-topic/]");
+        assertThat(output).contains("output_topic[/output-topic/]");
+        assertThat(output).contains("another_topic[/another-topic/]");
+        assertThat(output).contains("result_topic[/result-topic/]");
 
         // Verify edges
         assertThat(output).contains("KSTREAM_SOURCE_0000000000 --> KSTREAM_MAPVALUES_0000000001");
@@ -134,17 +146,18 @@ class MermaidFormatterIntegrationTest {
         assertThat(output).contains("join_signals_subscriptions");
         assertThat(output).contains("evaluate_signals");
 
-        // Verify key nodes from subtopology 0
-        assertThat(output).contains("Topics: signals-subscriptions-v1-repartition");
-        assertThat(output).contains("Topics: subscriptions-v1");
-        assertThat(output).contains("Topics: notifications");
-        assertThat(output).contains("Topics: aggregated-signals-v1-dlq");
-        assertThat(output).contains("Topics: billing-threshold-exceeded-v1");
-        assertThat(output).contains("Topics: evaluated-signals-v1");
+        // Verify topics as separate entities
+        assertThat(output).contains("%% Topics");
+        assertThat(output).contains("signals_subscriptions_v1_repartition[/signals-subscriptions-v1-repartition/]");
+        assertThat(output).contains("subscriptions_v1[/subscriptions-v1/]");
+        assertThat(output).contains("notifications[/notifications/]");
+        assertThat(output).contains("aggregated_signals_v1_dlq[/aggregated-signals-v1-dlq/]");
+        assertThat(output).contains("billing_threshold_exceeded_v1[/billing-threshold-exceeded-v1/]");
+        assertThat(output).contains("evaluated_signals_v1[/evaluated-signals-v1/]");
+        assertThat(output).contains("accounting_signals_v1[/accounting-signals-v1/]");
 
-        // Verify key nodes from subtopology 1
+        // Verify key nodes from subtopologies
         assertThat(output).contains("signals_source");
-        assertThat(output).contains("Topics: accounting-signals-v1");
         assertThat(output).contains("signals_table");
         assertThat(output).contains("suppress_window_v1");
 

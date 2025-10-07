@@ -10,12 +10,14 @@ public class Topology {
     private final Map<Integer, TopologySubtopology> subtopologies;
     private final Map<String, TopologyNode> globalStores;
     private final Map<String, TopologyNode> stateStores;
+    private final Map<String, TopologyNode> topics;
     private final List<SubtopologyConnection> subtopologyConnections;
 
     private Topology(Builder builder) {
         this.subtopologies = Collections.unmodifiableMap(new LinkedHashMap<>(builder.subtopologies));
         this.globalStores = Collections.unmodifiableMap(new LinkedHashMap<>(builder.globalStores));
         this.stateStores = Collections.unmodifiableMap(new LinkedHashMap<>(builder.stateStores));
+        this.topics = Collections.unmodifiableMap(new LinkedHashMap<>(builder.topics));
         this.subtopologyConnections = Collections.unmodifiableList(new ArrayList<>(builder.subtopologyConnections));
     }
 
@@ -29,6 +31,10 @@ public class Topology {
 
     public Map<String, TopologyNode> getStateStores() {
         return stateStores;
+    }
+
+    public Map<String, TopologyNode> getTopics() {
+        return topics;
     }
 
     public List<SubtopologyConnection> getSubtopologyConnections() {
@@ -47,12 +53,13 @@ public class Topology {
         return Objects.equals(subtopologies, topology.subtopologies) &&
                Objects.equals(globalStores, topology.globalStores) &&
                Objects.equals(stateStores, topology.stateStores) &&
+               Objects.equals(topics, topology.topics) &&
                Objects.equals(subtopologyConnections, topology.subtopologyConnections);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(subtopologies, globalStores, stateStores, subtopologyConnections);
+        return Objects.hash(subtopologies, globalStores, stateStores, topics, subtopologyConnections);
     }
 
     @Override
@@ -61,6 +68,7 @@ public class Topology {
                "subtopologies=" + subtopologies +
                ", globalStores=" + globalStores +
                ", stateStores=" + stateStores +
+               ", topics=" + topics +
                ", subtopologyConnections=" + subtopologyConnections +
                '}';
     }
@@ -69,6 +77,7 @@ public class Topology {
         private final Map<Integer, TopologySubtopology> subtopologies = new LinkedHashMap<>();
         private final Map<String, TopologyNode> globalStores = new LinkedHashMap<>();
         private final Map<String, TopologyNode> stateStores = new LinkedHashMap<>();
+        private final Map<String, TopologyNode> topics = new LinkedHashMap<>();
         private final List<SubtopologyConnection> subtopologyConnections = new ArrayList<>();
 
         private Builder() {
@@ -93,11 +102,43 @@ public class Topology {
         }
 
         public Topology build() {
+            // Extract topics from source and sink nodes
+            extractTopics();
             // Extract state stores from processor nodes
             extractStateStores();
             // Auto-detect connections between subtopologies
             detectSubtopologyConnections();
             return new Topology(this);
+        }
+
+        private void extractTopics() {
+            // Collect all unique topics from source and sink nodes
+            for (TopologySubtopology subtopology : subtopologies.values()) {
+                for (TopologyNode node : subtopology.getNodes().values()) {
+                    if ((node.getType() == NodeType.SOURCE || node.getType() == NodeType.SINK)
+                        && !node.getTopics().isEmpty()) {
+                        for (String topicName : node.getTopics()) {
+                            // Create a topic node if it doesn't already exist
+                            if (!topics.containsKey(topicName)) {
+                                TopologyNode topicNode = TopologyNode.builder(topicName, NodeType.TOPIC)
+                                        .build();
+                                topics.put(topicName, topicNode);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Also extract topics from global stores
+            for (TopologyNode globalStore : globalStores.values()) {
+                for (String topicName : globalStore.getTopics()) {
+                    if (!topics.containsKey(topicName)) {
+                        TopologyNode topicNode = TopologyNode.builder(topicName, NodeType.TOPIC)
+                                .build();
+                        topics.put(topicName, topicNode);
+                    }
+                }
+            }
         }
 
         private void extractStateStores() {
