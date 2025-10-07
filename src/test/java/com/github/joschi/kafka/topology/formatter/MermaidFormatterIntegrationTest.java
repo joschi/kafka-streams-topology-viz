@@ -36,9 +36,9 @@ class MermaidFormatterIntegrationTest {
         // Verify basic structure
         assertThat(output).startsWith("flowchart TD");
 
-        // Verify subtopology comments
-        assertThat(output).contains("%% Subtopology 0");
-        assertThat(output).contains("%% Subtopology 1");
+        // Verify subtopology subgraphs
+        assertThat(output).contains("subgraph sub0[\"Subtopology 0\"]");
+        assertThat(output).contains("subgraph sub1[\"Subtopology 1\"]");
 
         // Verify key nodes from subtopology 0 with stadium shapes for sources/sinks
         assertThat(output).contains("KSTREAM_SOURCE_0000000000([KSTREAM-SOURCE-0000000000])");
@@ -91,8 +91,8 @@ class MermaidFormatterIntegrationTest {
         assertThat(output).startsWith("flowchart TD");
 
         // Verify both subtopologies
-        assertThat(output).contains("%% Subtopology 0");
-        assertThat(output).contains("%% Subtopology 1");
+        assertThat(output).contains("subgraph sub0[\"Subtopology 0\"]");
+        assertThat(output).contains("subgraph sub1[\"Subtopology 1\"]");
 
         // Verify nodes from subtopology 0
         assertThat(output).contains("KSTREAM_SOURCE_0000000000");
@@ -130,8 +130,8 @@ class MermaidFormatterIntegrationTest {
         assertThat(output).startsWith("flowchart TD");
 
         // Verify both subtopologies
-        assertThat(output).contains("%% Subtopology 0");
-        assertThat(output).contains("%% Subtopology 1");
+        assertThat(output).contains("subgraph sub0[\"Subtopology 0\"]");
+        assertThat(output).contains("subgraph sub1[\"Subtopology 1\"]");
 
         // Verify sanitized node names (hyphens replaced with underscores)
         assertThat(output).contains("signals_subscriptions_v1_repartition_source");

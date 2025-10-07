@@ -18,17 +18,18 @@ public class MermaidFormatter implements TopologyFormatter {
         StringBuilder sb = new StringBuilder();
         sb.append("flowchart TD\n");
 
-        // Process subtopologies
+        // Process subtopologies as subgraphs
         for (Map.Entry<Integer, TopologySubtopology> entry : topology.getSubtopologies().entrySet()) {
             TopologySubtopology subtopology = entry.getValue();
             sb.append("\n");
-            sb.append("    %% Subtopology ").append(subtopology.getId()).append("\n");
+            sb.append("    subgraph sub").append(subtopology.getId())
+              .append("[\"Subtopology ").append(subtopology.getId()).append("\"]\n");
 
             // Define nodes with styling
             for (TopologyNode node : subtopology.getNodes().values()) {
                 // Skip "none" nodes - they're placeholders for no output
                 if (!"none".equals(node.getName())) {
-                    appendNodeDefinition(sb, node);
+                    appendNodeDefinition(sb, node, "    ");
                 }
             }
 
@@ -41,13 +42,15 @@ public class MermaidFormatter implements TopologyFormatter {
                 for (String successor : node.getSuccessors()) {
                     // Skip edges to "none"
                     if (!"none".equals(successor)) {
-                        sb.append("    ").append(sanitizeNodeId(node.getName()))
+                        sb.append("        ").append(sanitizeNodeId(node.getName()))
                           .append(" --> ")
                           .append(sanitizeNodeId(successor))
                           .append("\n");
                     }
                 }
             }
+
+            sb.append("    end\n");
         }
 
         // Process topics
@@ -55,7 +58,7 @@ public class MermaidFormatter implements TopologyFormatter {
             sb.append("\n");
             sb.append("    %% Topics\n");
             for (TopologyNode topic : topology.getTopics().values()) {
-                appendNodeDefinition(sb, topic);
+                appendNodeDefinition(sb, topic, "");
             }
 
             // Add connections from topics to sources and from sinks to topics
@@ -85,7 +88,7 @@ public class MermaidFormatter implements TopologyFormatter {
             sb.append("\n");
             sb.append("    %% State Stores\n");
             for (TopologyNode stateStore : topology.getStateStores().values()) {
-                appendNodeDefinition(sb, stateStore);
+                appendNodeDefinition(sb, stateStore, "");
             }
 
             // Add connections from processors to state stores
@@ -108,7 +111,7 @@ public class MermaidFormatter implements TopologyFormatter {
             sb.append("\n");
             sb.append("    %% Global Stores\n");
             for (TopologyNode globalStore : topology.getGlobalStores().values()) {
-                appendNodeDefinition(sb, globalStore);
+                appendNodeDefinition(sb, globalStore, "");
             }
         }
 
@@ -142,7 +145,7 @@ public class MermaidFormatter implements TopologyFormatter {
         return sb.toString();
     }
 
-    private void appendNodeDefinition(StringBuilder sb, TopologyNode node) {
+    private void appendNodeDefinition(StringBuilder sb, TopologyNode node, String indent) {
         String nodeId = sanitizeNodeId(node.getName());
         String label = buildNodeLabel(node);
 
@@ -156,7 +159,7 @@ public class MermaidFormatter implements TopologyFormatter {
             case GLOBAL_STORE -> "{{" + label + "}}";
         };
 
-        sb.append("    ").append(nodeId).append(nodeShape).append("\n");
+        sb.append(indent).append("    ").append(nodeId).append(nodeShape).append("\n");
     }
 
     private void appendNodeStyling(StringBuilder sb, TopologyNode node) {
