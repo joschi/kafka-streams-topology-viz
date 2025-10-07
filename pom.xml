@@ -11,6 +11,35 @@
 
     <name>Kafka Streams Topology Visualizer</name>
     <description>Library and CLI tool to visualize Kafka Streams topologies in various formats (Mermaid, GraphViz DOT)</description>
+    <url>https://github.com/joschi/kafka-streams-topology-viz</url>
+    <inceptionYear>2025</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>Apache-2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>joschi</id>
+            <name>Jochen Schalanda</name>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/joschi/kafka-streams-topology-viz.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/joschi/kafka-streams-topology-viz.git</developerConnection>
+        <url>https://github.com/joschi/kafka-streams-topology-viz</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/joschi/kafka-streams-topology-viz/issues</url>
+    </issueManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,6 +52,7 @@
         <picocli.version>4.7.6</picocli.version>
         <junit.version>5.11.3</junit.version>
         <assertj.version>3.26.3</assertj.version>
+        <jreleaser.version>1.15.0</jreleaser.version>
     </properties>
 
     <dependencies>
@@ -121,6 +151,50 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- JReleaser Plugin -->
+            <plugin>
+                <groupId>org.jreleaser</groupId>
+                <artifactId>jreleaser-maven-plugin</artifactId>
+                <version>${jreleaser.version}</version>
+                <configuration>
+                    <configFile>jreleaser.yml</configFile>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Source Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Maven Javadoc Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.10.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doclint>none</doclint>
+                    <quiet>true</quiet>
+                </configuration>
             </plugin>
         </plugins>
     </build>

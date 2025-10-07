@@ -1,0 +1,81 @@
+project:
+  stereotype: CLI
+  name: kafka-streams-topology-viz
+  description: Library and CLI tool to visualize Kafka Streams topologies in various formats (Mermaid, GraphViz DOT)
+  longDescription: |
+    Kafka Streams Topology Visualizer is a tool for visualizing Apache Kafka Streams topologies.
+    It supports multiple output formats including Mermaid diagrams and GraphViz DOT files, making it easy
+    to understand and document your streaming applications.
+  links:
+    homepage: https://github.com/joschi/kafka-streams-topology-viz
+    bugTracker: https://github.com/joschi/kafka-streams-topology-viz/issues
+    vcsBrowser: https://github.com/joschi/kafka-streams-topology-viz
+  authors:
+    - Jochen Schalanda
+  license: Apache-2.0
+  inceptionYear: "2025"
+  languages:
+    java:
+      version: "17"
+      groupId: com.github.joschi
+      artifactId: kafka-streams-topology-viz
+      mainClass: com.github.joschi.kafka.topology.cli.TopologyVisualizerCLI
+
+release:
+  github:
+    overwrite: true
+    changelog:
+      formatted: ALWAYS
+      preset: conventional-commits
+      contributors:
+        format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
+
+platform:
+  replacements:
+    aarch_64: aarch64
+
+signing:
+  active: ALWAYS
+  armored: true
+
+deploy:
+  maven:
+    mavenCentral:
+      sonatype:
+        active: ALWAYS
+        url: https://central.sonatype.com/api/v1/publisher
+        stagingRepositories:
+          - target/staging-deploy
+        applyMavenCentralRules: true
+        sign: true
+        checksums: true
+        sourceJar: true
+        javadocJar: true
+
+assemble:
+  nativeImage:
+    kafka-topology-viz:
+      active: ALWAYS
+      exported: false
+      stereotype: CLI
+      java:
+        mainClass: com.github.joschi.kafka.topology.cli.TopologyVisualizerCLI
+      graalJdks:
+        - path: '{{Env.GRAALVM_HOME}}'
+          platform: '{{Env.JRELEASER_PLATFORM}}'
+      archiving:
+        enabled: true
+        format: ZIP
+      artifacts:
+        - path: target/kafka-streams-topology-viz-{{projectVersion}}-cli.jar
+      upx:
+        active: RELEASE
+        version: '4.2.4'
+
+distributions:
+  kafka-topology-viz:
+    type: NATIVE_IMAGE
+    executable:
+      name: kafka-topology-viz
+    artifacts:
+      - path: out/jreleaser/assemble/kafka-topology-viz/native-image/{{distributionName}}-{{projectEffectiveVersion}}-{{osPlatform}}-{{archName}}.zip
