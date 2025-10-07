@@ -13,12 +13,11 @@ A Java library and command-line tool for visualizing Kafka Streams topologies in
 ## Requirements
 
 - Java 17 or higher
-- Maven 3.6 or higher (for building)
 
 ## Building
 
 ```bash
-mvn clean package
+./mvnw clean package
 ```
 
 This creates two JAR files in the `target/` directory:
