@@ -1,13 +1,11 @@
 package com.github.joschi.kafka.topology.formatter;
 
 import com.github.joschi.kafka.topology.model.NodeType;
-import com.github.joschi.kafka.topology.model.SubtopologyConnection;
 import com.github.joschi.kafka.topology.model.Topology;
 import com.github.joschi.kafka.topology.model.TopologyNode;
 import com.github.joschi.kafka.topology.model.TopologySubtopology;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Formats a Kafka Streams topology as a GraphViz DOT file.
@@ -138,24 +136,6 @@ public class DotFormatter implements TopologyFormatter {
                         }
                     }
                 }
-            }
-        }
-
-        // Add inter-subtopology connections
-        if (!topology.getSubtopologyConnections().isEmpty()) {
-            sb.append("\n");
-            sb.append("    // Inter-Subtopology Connections\n");
-            for (SubtopologyConnection connection : topology.getSubtopologyConnections()) {
-                String fromNode = sanitizeNodeId(connection.getFromSinkNode());
-                String toNode = sanitizeNodeId(connection.getToSourceNode());
-                String topics = String.join(", ", connection.getTopics());
-                sb.append("    ")
-                  .append(fromNode)
-                  .append(" -> ")
-                  .append(toNode)
-                  .append(" [label=\"")
-                  .append(escapeLabel(topics))
-                  .append("\", style=dashed, color=purple, penwidth=2];\n");
             }
         }
 

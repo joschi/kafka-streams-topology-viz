@@ -1,6 +1,9 @@
 package com.github.joschi.kafka.topology.parser;
 
-import com.github.joschi.kafka.topology.model.*;
+import com.github.joschi.kafka.topology.model.NodeType;
+import com.github.joschi.kafka.topology.model.Topology;
+import com.github.joschi.kafka.topology.model.TopologyNode;
+import com.github.joschi.kafka.topology.model.TopologySubtopology;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -67,15 +70,6 @@ class TopologyTextParserIntegrationTest {
         TopologyNode source1 = subtopology1.getNodes().get("KSTREAM-SOURCE-0000000006");
         assertThat(source1.getType()).isEqualTo(NodeType.SOURCE);
         assertThat(source1.getTopics()).containsExactly("count-resolved-repartition");
-
-        // Verify inter-subtopology connection detected
-        assertThat(topology.getSubtopologyConnections()).hasSize(1);
-        SubtopologyConnection connection = topology.getSubtopologyConnections().get(0);
-        assertThat(connection.getFromSubtopologyId()).isEqualTo(0);
-        assertThat(connection.getFromSinkNode()).isEqualTo("KSTREAM-SINK-0000000004");
-        assertThat(connection.getToSubtopologyId()).isEqualTo(1);
-        assertThat(connection.getToSourceNode()).isEqualTo("KSTREAM-SOURCE-0000000006");
-        assertThat(connection.getTopics()).containsExactly("count-resolved-repartition");
     }
 
     @Test
@@ -116,9 +110,6 @@ class TopologyTextParserIntegrationTest {
         TopologyNode sink1 = subtopology1.getNodes().get("KSTREAM-SINK-0000000005");
         assertThat(sink1.getType()).isEqualTo(NodeType.SINK);
         assertThat(sink1.getTopics()).containsExactly("result-topic");
-
-        // Verify NO inter-subtopology connections (independent topologies)
-        assertThat(topology.getSubtopologyConnections()).isEmpty();
     }
 
     @Test
@@ -186,15 +177,6 @@ class TopologyTextParserIntegrationTest {
         TopologyNode repartitionSink = subtopology1.getNodes().get("signals-subscriptions-v1-repartition-sink");
         assertThat(repartitionSink.getType()).isEqualTo(NodeType.SINK);
         assertThat(repartitionSink.getTopics()).containsExactly("signals-subscriptions-v1-repartition");
-
-        // Verify inter-subtopology connection
-        assertThat(topology.getSubtopologyConnections()).hasSize(1);
-        SubtopologyConnection connection = topology.getSubtopologyConnections().get(0);
-        assertThat(connection.getFromSubtopologyId()).isEqualTo(1);
-        assertThat(connection.getFromSinkNode()).isEqualTo("signals-subscriptions-v1-repartition-sink");
-        assertThat(connection.getToSubtopologyId()).isEqualTo(0);
-        assertThat(connection.getToSourceNode()).isEqualTo("signals-subscriptions-v1-repartition-source");
-        assertThat(connection.getTopics()).containsExactly("signals-subscriptions-v1-repartition");
     }
 
     @Test

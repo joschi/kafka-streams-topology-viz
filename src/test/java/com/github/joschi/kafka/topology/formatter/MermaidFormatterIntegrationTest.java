@@ -67,10 +67,6 @@ class MermaidFormatterIntegrationTest {
         assertThat(output).contains("KSTREAM_FILTER_0000000005 --> KSTREAM_SINK_0000000004");
         assertThat(output).contains("KSTREAM_SOURCE_0000000006 --> KSTREAM_AGGREGATE_0000000003");
 
-        // Verify inter-subtopology connection (dashed arrow with label)
-        assertThat(output).contains("%% Inter-Subtopology Connections");
-        assertThat(output).contains("KSTREAM_SINK_0000000004 -.->|count-resolved-repartition| KSTREAM_SOURCE_0000000006");
-
         // Verify styling section
         assertThat(output).contains("%% Styling");
         assertThat(output).contains("classDef sourceStyle");
@@ -120,10 +116,6 @@ class MermaidFormatterIntegrationTest {
         assertThat(output).contains("KSTREAM_MAPVALUES_0000000001 --> KSTREAM_FILTER_0000000002");
         assertThat(output).contains("KSTREAM_FILTER_0000000002 --> KSTREAM_SINK_0000000003");
         assertThat(output).contains("KSTREAM_SOURCE_0000000004 --> KSTREAM_SINK_0000000005");
-
-        // Verify NO inter-subtopology connections (independent topologies)
-        assertThat(output).doesNotContain("%% Inter-Subtopology Connections");
-        assertThat(output).doesNotContain("-.->|");
     }
 
     @Test
@@ -160,10 +152,6 @@ class MermaidFormatterIntegrationTest {
         assertThat(output).contains("signals_source");
         assertThat(output).contains("signals_table");
         assertThat(output).contains("suppress_window_v1");
-
-        // Verify inter-subtopology connection
-        assertThat(output).contains("%% Inter-Subtopology Connections");
-        assertThat(output).contains("signals_subscriptions_v1_repartition_sink -.->|signals-subscriptions-v1-repartition| signals_subscriptions_v1_repartition_source");
 
         // Verify complex flow with multiple branches
         assertThat(output).contains("evaluated_signals_");

@@ -69,12 +69,6 @@ class DotFormatterIntegrationTest {
 
         // Verify edges within subtopology 1
         assertThat(output).contains("KSTREAM_SOURCE_0000000006 -> KSTREAM_AGGREGATE_0000000003");
-
-        // Verify inter-subtopology connection
-        assertThat(output).contains("Inter-Subtopology Connections");
-        assertThat(output).contains("KSTREAM_SINK_0000000004 -> KSTREAM_SOURCE_0000000006");
-        assertThat(output).contains("style=dashed");
-        assertThat(output).contains("color=purple");
     }
 
     @Test
@@ -105,9 +99,6 @@ class DotFormatterIntegrationTest {
         assertThat(output).contains("another-topic");
         assertThat(output).contains("KSTREAM_SINK_0000000005");
         assertThat(output).contains("result-topic");
-
-        // Verify NO inter-subtopology connections (independent topologies)
-        assertThat(output).doesNotContain("Inter-Subtopology Connections");
     }
 
     @Test
@@ -136,12 +127,6 @@ class DotFormatterIntegrationTest {
         assertThat(output).contains("signals_source");
         assertThat(output).contains("accounting-signals-v1");
         assertThat(output).contains("signals_subscriptions_v1_repartition_sink");
-
-        // Verify inter-subtopology connection via signals-subscriptions-v1-repartition
-        assertThat(output).contains("Inter-Subtopology Connections");
-        assertThat(output).contains("signals_subscriptions_v1_repartition_sink");
-        assertThat(output).contains("signals_subscriptions_v1_repartition_source");
-        assertThat(output).contains("signals-subscriptions-v1-repartition");
 
         // Verify complex branching in subtopology 0
         assertThat(output).contains("evaluated_signals_success");
