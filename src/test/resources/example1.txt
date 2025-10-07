@@ -25,4 +25,3 @@ Sub-topology: 1
 	<-- KSTREAM-AGGREGATE-0000000003
 	Sink: KSTREAM-SINK-0000000008 (topic: streams-count-resolved)
 	<-- KTABLE-TOSTREAM-0000000007
-			
