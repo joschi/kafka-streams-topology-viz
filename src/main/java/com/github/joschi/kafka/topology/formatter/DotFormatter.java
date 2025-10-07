@@ -109,7 +109,7 @@ public class DotFormatter implements TopologyFormatter {
         if (!node.getTopics().isEmpty()) {
             String topics = node.getTopics().stream()
                     .collect(Collectors.joining(", "));
-            label.append("\\nTopics: ").append(topics);
+            label.append("\nTopics: ").append(topics);
         }
 
         return label.toString();
@@ -138,9 +138,11 @@ public class DotFormatter implements TopologyFormatter {
     }
 
     private String escapeLabel(String label) {
-        // Escape quotes and backslashes for DOT labels
+        // Escape special characters for DOT labels
+        // Order matters: backslash first, then quotes, then newlines
         return label.replace("\\", "\\\\")
-                   .replace("\"", "\\\"");
+                   .replace("\"", "\\\"")
+                   .replace("\n", "\\n");
     }
 
     @Override

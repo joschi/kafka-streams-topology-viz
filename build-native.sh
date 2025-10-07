@@ -7,16 +7,16 @@ echo "Building Kafka Streams Topology Visualizer Native Image..."
 echo ""
 
 # Check if GraalVM is available
-if ! command -v native-image &> /dev/null; then
-    echo "Error: native-image command not found!"
-    echo ""
-    echo "Please install GraalVM and the native-image tool:"
-    echo "  1. Download GraalVM from https://www.graalvm.org/"
-    echo "  2. Set JAVA_HOME to GraalVM installation"
-    echo "  3. Install native-image: gu install native-image"
-    echo ""
-    exit 1
-fi
+#if ! command -v native-image &> /dev/null; then
+#    echo "Error: native-image command not found!"
+#    echo ""
+#    echo "Please install GraalVM and the native-image tool:"
+#    echo "  1. Download GraalVM from https://www.graalvm.org/"
+#    echo "  2. Set JAVA_HOME to GraalVM installation"
+#    echo "  3. Install native-image: gu install native-image"
+#    echo ""
+#    exit 1
+#fi
 
 # Show GraalVM version
 echo "Using GraalVM:"
