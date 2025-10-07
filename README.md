@@ -9,6 +9,7 @@ A Java library and command-line tool for visualizing Kafka Streams topologies in
 - 🔗 **Connected Subtopologies**: Automatically detects and visualizes connections between subtopologies via intermediate topics
 - 📥 **Flexible Input**: Support for both TopologyDescription API and text representation
 - 🔧 **Library & CLI**: Use as a library in your application or as a standalone CLI tool
+- ⚡ **GraalVM Native Image**: Build as a static binary for instant startup and low memory usage
 - 🔌 **Extensible**: Easy to add new output formatters
 
 ## Requirements
@@ -17,6 +18,8 @@ A Java library and command-line tool for visualizing Kafka Streams topologies in
 
 ## Building
 
+### Standard JAR Build
+
 ```bash
 ./mvnw clean package
 ```
@@ -24,6 +27,38 @@ A Java library and command-line tool for visualizing Kafka Streams topologies in
 This creates two JAR files in the `target/` directory:
 - `kafka-streams-topology-viz-1.0.0-SNAPSHOT.jar` - Library JAR
 - `kafka-streams-topology-viz-1.0.0-SNAPSHOT-cli.jar` - Executable CLI JAR
+
+### GraalVM Native Image Build
+
+Build a native executable using GraalVM for faster startup and lower memory usage:
+
+**Prerequisites:**
+- [GraalVM](https://www.graalvm.org/) 21+ with `native-image` installed
+- Set `JAVA_HOME` to GraalVM installation
+
+```bash
+# Build native executable
+./mvnw clean package -Pnative
+
+# The native executable will be created at:
+# target/kafka-topology-viz
+```
+
+**Benefits of Native Image:**
+- ⚡ **Instant startup** - No JVM warmup time
+- 💾 **Low memory footprint** - Typically 10-20x less than JVM
+- 📦 **Single binary** - No Java runtime required
+- 🚀 **Fast execution** - Ahead-of-time compiled
+
+**Usage:**
+```bash
+# Run the native executable directly
+./target/kafka-topology-viz topology.txt
+
+# Or install it to your PATH
+sudo cp target/kafka-topology-viz /usr/local/bin/
+kafka-topology-viz topology.txt
+```
 
 ## Usage
 
