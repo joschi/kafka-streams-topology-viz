@@ -77,7 +77,12 @@ public class TopologyDescriptionConverter {
     }
 
     private TopologyNode convertGlobalStore(TopologyDescription.GlobalStore globalStore) {
-        TopologyNode.Builder builder = TopologyNode.builder(globalStore.id(), NodeType.GLOBAL_STORE);
+        // Use processor name as the global store identifier
+        String storeName = globalStore.processor() != null
+            ? globalStore.processor().name()
+            : "global-store-" + globalStore.id();
+
+        TopologyNode.Builder builder = TopologyNode.builder(storeName, NodeType.GLOBAL_STORE);
 
         // Global store has a source
         TopologyDescription.Source source = globalStore.source();

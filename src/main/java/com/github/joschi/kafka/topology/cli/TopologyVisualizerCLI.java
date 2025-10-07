@@ -37,7 +37,7 @@ public class TopologyVisualizerCLI implements Callable<Integer> {
     @Option(
         names = {"-f", "--format"},
         description = "Output format: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})",
-        defaultValue = "mermaid"
+        defaultValue = "MERMAID"
     )
     private OutputFormat format;
 

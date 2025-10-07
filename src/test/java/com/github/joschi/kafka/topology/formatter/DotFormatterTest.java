@@ -108,6 +108,6 @@ class DotFormatterTest {
 
         String output = formatter.format(topology);
 
-        assertThat(output).contains("n__0_node");
+        assertThat(output).contains("n_0_node");
     }
 }
