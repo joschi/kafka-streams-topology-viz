@@ -93,7 +93,8 @@ public class TopologyTextParser {
 
                     TopologyNode.Builder nodeBuilder = TopologyNode.builder(nodeName, NodeType.PROCESSOR);
                     if (!storesStr.isEmpty()) {
-                        // Store information could be added to the model if needed
+                        Set<String> stores = parseStores(storesStr);
+                        nodeBuilder.stores(stores);
                     }
                     currentNodes.put(nodeName, nodeBuilder);
                     currentNodeName = nodeName;
@@ -138,6 +139,7 @@ public class TopologyTextParser {
                         TopologyNode oldNode = successorBuilder.build();
                         successorBuilder = TopologyNode.builder(oldNode.getName(), oldNode.getType())
                                 .topics(oldNode.getTopics())
+                                .stores(oldNode.getStores())
                                 .successors(oldNode.getSuccessors())
                                 .predecessors(predecessors);
                         currentNodes.put(successorName, successorBuilder);
@@ -211,6 +213,21 @@ public class TopologyTextParser {
             // Filter out "none" - it's a special marker for nodes with no outputs
             if (!trimmedName.equals("none")) {
                 result.add(trimmedName);
+            }
+        }
+        return result;
+    }
+
+    private Set<String> parseStores(String storesStr) {
+        if (storesStr == null || storesStr.trim().isEmpty()) {
+            return Set.of();
+        }
+        String[] stores = storesStr.split(",");
+        Set<String> result = new HashSet<>();
+        for (String store : stores) {
+            String trimmedStore = store.trim();
+            if (!trimmedStore.isEmpty()) {
+                result.add(trimmedStore);
             }
         }
         return result;

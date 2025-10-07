@@ -22,5 +22,10 @@ public enum NodeType {
     /**
      * Global store accessible by all topology instances.
      */
-    GLOBAL_STORE
+    GLOBAL_STORE,
+
+    /**
+     * State store used by processors for stateful operations.
+     */
+    STATE_STORE
 }

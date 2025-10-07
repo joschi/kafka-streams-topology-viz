@@ -71,6 +71,12 @@ public class TopologyDescriptionConverter {
             if (sink.topic() != null) {
                 builder.topics(Set.of(sink.topic()));
             }
+        } else if (node instanceof TopologyDescription.Processor processor) {
+            // Add stores for processor nodes
+            Set<String> stores = processor.stores();
+            if (stores != null && !stores.isEmpty()) {
+                builder.stores(stores);
+            }
         }
 
         return builder.build();

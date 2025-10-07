@@ -52,6 +52,29 @@ public class MermaidFormatter implements TopologyFormatter {
             }
         }
 
+        // Process state stores
+        if (!topology.getStateStores().isEmpty()) {
+            sb.append("\n");
+            sb.append("    %% State Stores\n");
+            for (TopologyNode stateStore : topology.getStateStores().values()) {
+                appendNodeDefinition(sb, stateStore);
+            }
+
+            // Add connections from processors to state stores
+            for (TopologySubtopology subtopology : topology.getSubtopologies().values()) {
+                for (TopologyNode node : subtopology.getNodes().values()) {
+                    if (node.getType() == NodeType.PROCESSOR && !node.getStores().isEmpty()) {
+                        for (String storeName : node.getStores()) {
+                            sb.append("    ").append(sanitizeNodeId(node.getName()))
+                              .append(" -.-> ")
+                              .append(sanitizeNodeId(storeName))
+                              .append("\n");
+                        }
+                    }
+                }
+            }
+        }
+
         // Process global stores
         if (!topology.getGlobalStores().isEmpty()) {
             sb.append("\n");
@@ -82,6 +105,7 @@ public class MermaidFormatter implements TopologyFormatter {
         sb.append("    classDef sourceStyle fill:#90EE90,stroke:#2F4F2F,stroke-width:2px\n");
         sb.append("    classDef processorStyle fill:#87CEEB,stroke:#4682B4,stroke-width:2px\n");
         sb.append("    classDef sinkStyle fill:#FFB6C1,stroke:#8B4513,stroke-width:2px\n");
+        sb.append("    classDef stateStoreStyle fill:#FFA500,stroke:#FF6347,stroke-width:2px\n");
         sb.append("    classDef globalStoreStyle fill:#FFD700,stroke:#FF8C00,stroke-width:3px,stroke-dasharray: 5 5\n");
 
         // Apply styles to nodes
@@ -90,6 +114,9 @@ public class MermaidFormatter implements TopologyFormatter {
             for (TopologyNode node : subtopology.getNodes().values()) {
                 appendNodeStyling(sb, node);
             }
+        }
+        for (TopologyNode stateStore : topology.getStateStores().values()) {
+            appendNodeStyling(sb, stateStore);
         }
         for (TopologyNode globalStore : topology.getGlobalStores().values()) {
             appendNodeStyling(sb, globalStore);
@@ -107,6 +134,7 @@ public class MermaidFormatter implements TopologyFormatter {
             case SOURCE -> "([" + label + "])";
             case PROCESSOR -> "[" + label + "]";
             case SINK -> "([" + label + "])";
+            case STATE_STORE -> "[(" + label + ")]";
             case GLOBAL_STORE -> "{{" + label + "}}";
         };
 
@@ -119,6 +147,7 @@ public class MermaidFormatter implements TopologyFormatter {
             case SOURCE -> "sourceStyle";
             case PROCESSOR -> "processorStyle";
             case SINK -> "sinkStyle";
+            case STATE_STORE -> "stateStoreStyle";
             case GLOBAL_STORE -> "globalStoreStyle";
         };
 

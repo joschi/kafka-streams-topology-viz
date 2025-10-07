@@ -14,7 +14,7 @@ public class TopologyNode {
     private final Set<String> predecessors;
     private final Set<String> successors;
     private final Set<String> topics;
-    private final String storeName;
+    private final Set<String> stores;
 
     private TopologyNode(Builder builder) {
         this.name = Objects.requireNonNull(builder.name, "name cannot be null");
@@ -22,7 +22,7 @@ public class TopologyNode {
         this.predecessors = Collections.unmodifiableSet(builder.predecessors);
         this.successors = Collections.unmodifiableSet(builder.successors);
         this.topics = Collections.unmodifiableSet(builder.topics);
-        this.storeName = builder.storeName;
+        this.stores = Collections.unmodifiableSet(builder.stores);
     }
 
     public String getName() {
@@ -45,8 +45,8 @@ public class TopologyNode {
         return topics;
     }
 
-    public String getStoreName() {
-        return storeName;
+    public Set<String> getStores() {
+        return stores;
     }
 
     public static Builder builder(String name, NodeType type) {
@@ -63,12 +63,12 @@ public class TopologyNode {
                Objects.equals(predecessors, that.predecessors) &&
                Objects.equals(successors, that.successors) &&
                Objects.equals(topics, that.topics) &&
-               Objects.equals(storeName, that.storeName);
+               Objects.equals(stores, that.stores);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, type, predecessors, successors, topics, storeName);
+        return Objects.hash(name, type, predecessors, successors, topics, stores);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class TopologyNode {
                ", predecessors=" + predecessors +
                ", successors=" + successors +
                ", topics=" + topics +
-               ", storeName='" + storeName + '\'' +
+               ", stores=" + stores +
                '}';
     }
 
@@ -89,7 +89,7 @@ public class TopologyNode {
         private Set<String> predecessors = Collections.emptySet();
         private Set<String> successors = Collections.emptySet();
         private Set<String> topics = Collections.emptySet();
-        private String storeName;
+        private Set<String> stores = Collections.emptySet();
 
         private Builder(String name, NodeType type) {
             this.name = name;
@@ -111,8 +111,8 @@ public class TopologyNode {
             return this;
         }
 
-        public Builder storeName(String storeName) {
-            this.storeName = storeName;
+        public Builder stores(Set<String> stores) {
+            this.stores = Set.copyOf(stores);
             return this;
         }
 
