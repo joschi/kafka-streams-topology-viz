@@ -37,7 +37,10 @@ public class DotFormatter implements TopologyFormatter {
 
             // Define nodes
             for (TopologyNode node : subtopology.getNodes().values()) {
-                appendNodeDefinition(sb, node, "        ");
+                // Skip "none" nodes - they're placeholders for no output
+                if (!"none".equals(node.getName())) {
+                    appendNodeDefinition(sb, node, "        ");
+                }
             }
 
             sb.append("    }\n\n");
@@ -56,12 +59,19 @@ public class DotFormatter implements TopologyFormatter {
         sb.append("    // Edges\n");
         for (TopologySubtopology subtopology : topology.getSubtopologies().values()) {
             for (TopologyNode node : subtopology.getNodes().values()) {
+                // Skip "none" nodes
+                if ("none".equals(node.getName())) {
+                    continue;
+                }
                 for (String successor : node.getSuccessors()) {
-                    sb.append("    ")
-                      .append(sanitizeNodeId(node.getName()))
-                      .append(" -> ")
-                      .append(sanitizeNodeId(successor))
-                      .append(";\n");
+                    // Skip edges to "none"
+                    if (!"none".equals(successor)) {
+                        sb.append("    ")
+                          .append(sanitizeNodeId(node.getName()))
+                          .append(" -> ")
+                          .append(sanitizeNodeId(successor))
+                          .append(";\n");
+                    }
                 }
             }
         }

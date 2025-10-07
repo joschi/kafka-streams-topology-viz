@@ -28,16 +28,26 @@ public class MermaidFormatter implements TopologyFormatter {
 
             // Define nodes with styling
             for (TopologyNode node : subtopology.getNodes().values()) {
-                appendNodeDefinition(sb, node);
+                // Skip "none" nodes - they're placeholders for no output
+                if (!"none".equals(node.getName())) {
+                    appendNodeDefinition(sb, node);
+                }
             }
 
             // Define edges
             for (TopologyNode node : subtopology.getNodes().values()) {
+                // Skip "none" nodes
+                if ("none".equals(node.getName())) {
+                    continue;
+                }
                 for (String successor : node.getSuccessors()) {
-                    sb.append("    ").append(sanitizeNodeId(node.getName()))
-                      .append(" --> ")
-                      .append(sanitizeNodeId(successor))
-                      .append("\n");
+                    // Skip edges to "none"
+                    if (!"none".equals(successor)) {
+                        sb.append("    ").append(sanitizeNodeId(node.getName()))
+                          .append(" --> ")
+                          .append(sanitizeNodeId(successor))
+                          .append("\n");
+                    }
                 }
             }
         }

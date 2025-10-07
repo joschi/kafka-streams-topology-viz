@@ -207,7 +207,11 @@ public class TopologyTextParser {
         String[] names = nodeNamesStr.split(",");
         Set<String> result = new HashSet<>();
         for (String name : names) {
-            result.add(name.trim());
+            String trimmedName = name.trim();
+            // Filter out "none" - it's a special marker for nodes with no outputs
+            if (!trimmedName.equals("none")) {
+                result.add(trimmedName);
+            }
         }
         return result;
     }
