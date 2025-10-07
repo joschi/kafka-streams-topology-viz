@@ -52,7 +52,7 @@
         <picocli.version>4.7.7</picocli.version>
         <junit.version>5.11.3</junit.version>
         <assertj.version>3.27.6</assertj.version>
-        <jreleaser.version>1.15.0</jreleaser.version>
+        <jreleaser.version>1.20.0</jreleaser.version>
     </properties>
 
     <dependencies>
