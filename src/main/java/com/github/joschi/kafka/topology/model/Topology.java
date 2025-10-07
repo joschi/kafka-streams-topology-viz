@@ -1,9 +1,6 @@
 package com.github.joschi.kafka.topology.model;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents a complete Kafka Streams topology.
@@ -12,10 +9,12 @@ import java.util.Objects;
 public class Topology {
     private final Map<Integer, TopologySubtopology> subtopologies;
     private final Map<String, TopologyNode> globalStores;
+    private final List<SubtopologyConnection> subtopologyConnections;
 
     private Topology(Builder builder) {
         this.subtopologies = Collections.unmodifiableMap(new LinkedHashMap<>(builder.subtopologies));
         this.globalStores = Collections.unmodifiableMap(new LinkedHashMap<>(builder.globalStores));
+        this.subtopologyConnections = Collections.unmodifiableList(new ArrayList<>(builder.subtopologyConnections));
     }
 
     public Map<Integer, TopologySubtopology> getSubtopologies() {
@@ -24,6 +23,10 @@ public class Topology {
 
     public Map<String, TopologyNode> getGlobalStores() {
         return globalStores;
+    }
+
+    public List<SubtopologyConnection> getSubtopologyConnections() {
+        return subtopologyConnections;
     }
 
     public static Builder builder() {
@@ -36,12 +39,13 @@ public class Topology {
         if (o == null || getClass() != o.getClass()) return false;
         Topology topology = (Topology) o;
         return Objects.equals(subtopologies, topology.subtopologies) &&
-               Objects.equals(globalStores, topology.globalStores);
+               Objects.equals(globalStores, topology.globalStores) &&
+               Objects.equals(subtopologyConnections, topology.subtopologyConnections);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(subtopologies, globalStores);
+        return Objects.hash(subtopologies, globalStores, subtopologyConnections);
     }
 
     @Override
@@ -49,12 +53,14 @@ public class Topology {
         return "Topology{" +
                "subtopologies=" + subtopologies +
                ", globalStores=" + globalStores +
+               ", subtopologyConnections=" + subtopologyConnections +
                '}';
     }
 
     public static class Builder {
         private final Map<Integer, TopologySubtopology> subtopologies = new LinkedHashMap<>();
         private final Map<String, TopologyNode> globalStores = new LinkedHashMap<>();
+        private final List<SubtopologyConnection> subtopologyConnections = new ArrayList<>();
 
         private Builder() {
         }
@@ -72,8 +78,73 @@ public class Topology {
             return this;
         }
 
+        public Builder addSubtopologyConnection(SubtopologyConnection connection) {
+            this.subtopologyConnections.add(connection);
+            return this;
+        }
+
         public Topology build() {
+            // Auto-detect connections between subtopologies
+            detectSubtopologyConnections();
             return new Topology(this);
+        }
+
+        private void detectSubtopologyConnections() {
+            // Map topics to their source nodes
+            Map<String, List<SourceInfo>> topicToSources = new HashMap<>();
+            for (Map.Entry<Integer, TopologySubtopology> entry : subtopologies.entrySet()) {
+                int subtopologyId = entry.getKey();
+                TopologySubtopology subtopology = entry.getValue();
+
+                for (TopologyNode node : subtopology.getNodes().values()) {
+                    if (node.getType() == NodeType.SOURCE) {
+                        for (String topic : node.getTopics()) {
+                            topicToSources
+                                .computeIfAbsent(topic, k -> new ArrayList<>())
+                                .add(new SourceInfo(subtopologyId, node.getName()));
+                        }
+                    }
+                }
+            }
+
+            // Find sinks that write to topics read by sources in other subtopologies
+            for (Map.Entry<Integer, TopologySubtopology> entry : subtopologies.entrySet()) {
+                int fromSubtopologyId = entry.getKey();
+                TopologySubtopology subtopology = entry.getValue();
+
+                for (TopologyNode node : subtopology.getNodes().values()) {
+                    if (node.getType() == NodeType.SINK) {
+                        for (String topic : node.getTopics()) {
+                            List<SourceInfo> sources = topicToSources.get(topic);
+                            if (sources != null) {
+                                for (SourceInfo source : sources) {
+                                    // Only create connection if source is in a different subtopology
+                                    if (source.subtopologyId != fromSubtopologyId) {
+                                        SubtopologyConnection connection = new SubtopologyConnection(
+                                            fromSubtopologyId,
+                                            node.getName(),
+                                            source.subtopologyId,
+                                            source.nodeName,
+                                            Set.of(topic)
+                                        );
+                                        subtopologyConnections.add(connection);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static class SourceInfo {
+            final int subtopologyId;
+            final String nodeName;
+
+            SourceInfo(int subtopologyId, String nodeName) {
+                this.subtopologyId = subtopologyId;
+                this.nodeName = nodeName;
+            }
         }
     }
 }

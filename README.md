@@ -6,6 +6,7 @@ A Java library and command-line tool for visualizing Kafka Streams topologies in
 
 - 📊 **Multiple Output Formats**: Generate Mermaid flowcharts and GraphViz DOT files
 - 🎨 **Node Styling**: Different visual styles for sources, processors, sinks, and global stores
+- 🔗 **Connected Subtopologies**: Automatically detects and visualizes connections between subtopologies via intermediate topics
 - 📥 **Flexible Input**: Support for both TopologyDescription API and text representation
 - 🔧 **Library & CLI**: Use as a library in your application or as a standalone CLI tool
 - 🔌 **Extensible**: Easy to add new output formatters
@@ -170,6 +171,7 @@ Generates a Mermaid flowchart with:
   - 🟡 Global Stores: Gold hexagons with dashed borders
 - **Topic information** included in node labels
 - **Subtopology grouping** via comments
+- **Inter-subtopology connections** shown as dashed arrows with topic labels
 
 Example output:
 ```mermaid
@@ -202,6 +204,7 @@ Generates a GraphViz DOT file with:
   - 🟣 Sinks: Pink ellipses
   - 🟡 Global Stores: Gold hexagons with dashed borders
 - **Topic information** in node labels
+- **Inter-subtopology connections** shown as dashed purple arrows with topic labels
 
 Example output:
 ```dot

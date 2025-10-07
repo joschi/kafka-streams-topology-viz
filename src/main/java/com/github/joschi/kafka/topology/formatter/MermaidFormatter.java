@@ -1,6 +1,7 @@
 package com.github.joschi.kafka.topology.formatter;
 
 import com.github.joschi.kafka.topology.model.NodeType;
+import com.github.joschi.kafka.topology.model.SubtopologyConnection;
 import com.github.joschi.kafka.topology.model.Topology;
 import com.github.joschi.kafka.topology.model.TopologyNode;
 import com.github.joschi.kafka.topology.model.TopologySubtopology;
@@ -47,6 +48,21 @@ public class MermaidFormatter implements TopologyFormatter {
             sb.append("    %% Global Stores\n");
             for (TopologyNode globalStore : topology.getGlobalStores().values()) {
                 appendNodeDefinition(sb, globalStore);
+            }
+        }
+
+        // Add inter-subtopology connections
+        if (!topology.getSubtopologyConnections().isEmpty()) {
+            sb.append("\n");
+            sb.append("    %% Inter-Subtopology Connections\n");
+            for (SubtopologyConnection connection : topology.getSubtopologyConnections()) {
+                String fromNode = sanitizeNodeId(connection.getFromSinkNode());
+                String toNode = sanitizeNodeId(connection.getToSourceNode());
+                String topics = String.join(", ", connection.getTopics());
+                sb.append("    ").append(fromNode)
+                  .append(" -.->|").append(topics).append("| ")
+                  .append(toNode)
+                  .append("\n");
             }
         }
 
