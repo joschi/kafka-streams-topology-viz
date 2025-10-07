@@ -48,7 +48,7 @@
         <maven.compiler.release>17</maven.compiler.release>
 
         <!-- Dependency versions -->
-        <kafka.version>3.9.0</kafka.version>
+        <kafka.version>3.9.1</kafka.version>
         <picocli.version>4.7.6</picocli.version>
         <junit.version>5.11.3</junit.version>
         <assertj.version>3.26.3</assertj.version>
