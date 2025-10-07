@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions: { }
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: [ 17, 21, 25 ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          persist-credentials: false
+
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'mandrel'
+          cache: 'maven'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run tests
+        run: ./mvnw verify
