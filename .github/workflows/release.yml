@@ -20,9 +20,6 @@ jobs:
             os_name: linux
             arch: aarch64
           # macOS builds
-          - os: macos-15-intel
-            os_name: osx
-            arch: x86_64
           - os: macos-15
             os_name: osx
             arch: aarch64
@@ -36,37 +33,18 @@ jobs:
         uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
         with:
           java-version: '25'
-          distribution: 'mandrel'
-          components: 'native-image'
+          distribution: 'graalvm'
           cache: 'maven'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build JAR
         run: ./mvnw --no-transfer-progress clean package -DskipTests
 
-      - name: Build Native Image (Linux x86_64)
-        if: matrix.os_name == 'linux' && matrix.arch == 'x86_64'
+      - name: Build Native Image (${{ matrix.os_name }}-${{ matrix.arch }})
+        env:
+          JRELEASER_PLATFORM: ${{ matrix.os_name }}-${{ matrix.arch }}
         run: |
           export GRAALVM_HOME=$JAVA_HOME
-          export JRELEASER_PLATFORM=linux-x86_64
-          ./mvnw --no-transfer-progress -Pnative -DskipTests package
-          ./mvnw --no-transfer-progress jreleaser:assemble -Djreleaser.select.current.platform
-
-      - name: Build Native Image (Linux aarch64)
-        if: matrix.os_name == 'linux' && matrix.arch == 'aarch64'
-        run: |
-          # For cross-compilation on Linux, we need to set up cross-compilation tools
-          # This is a simplified approach - for production, consider using Docker with proper cross-compilation support
-          export GRAALVM_HOME=$JAVA_HOME
-          export JRELEASER_PLATFORM=linux-aarch64
-          ./mvnw --no-transfer-progress -Pnative -DskipTests package
-          ./mvnw --no-transfer-progress jreleaser:assemble -Djreleaser.select.current.platform
-
-      - name: Build Native Image (macOS)
-        if: matrix.os_name == 'osx'
-        run: |
-          export GRAALVM_HOME=$JAVA_HOME
-          export JRELEASER_PLATFORM=${{ matrix.os_name }}-${{ matrix.arch }}
           ./mvnw --no-transfer-progress -Pnative -DskipTests package
           ./mvnw --no-transfer-progress jreleaser:assemble -Djreleaser.select.current.platform
 
@@ -102,8 +80,8 @@ jobs:
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
         with:
-          java-version: '17'
-          distribution: 'mandrel'
+          java-version: '25'
+          distribution: 'graalvm'
           cache: 'maven'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 

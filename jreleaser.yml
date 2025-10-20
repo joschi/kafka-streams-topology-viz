@@ -42,7 +42,7 @@ deploy:
   maven:
     mavenCentral:
       sonatype:
-        active: ALWAYS
+        active: RELEASE
         url: https://central.sonatype.com/api/v1/publisher
         stagingRepositories:
           - target/staging-deploy
@@ -57,20 +57,17 @@ assemble:
     kafka-topology-viz:
       active: ALWAYS
       exported: false
-      stereotype: CLI
-      java:
-        mainClass: com.github.joschi.kafka.topology.cli.TopologyVisualizerCLI
+      mainJar:
+        path: target/kafka-streams-topology-viz-{{projectVersion}}-cli.jar
       graalJdks:
         - path: '{{Env.GRAALVM_HOME}}'
           platform: '{{Env.JRELEASER_PLATFORM}}'
       archiving:
         enabled: true
         format: ZIP
-      artifacts:
-        - path: target/kafka-streams-topology-viz-{{projectVersion}}-cli.jar
       upx:
         active: RELEASE
-        version: '4.2.4'
+        version: '5.0.2'
 
 distributions:
   kafka-topology-viz:
