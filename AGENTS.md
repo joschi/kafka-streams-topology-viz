@@ -98,7 +98,7 @@ src/test/
 ./mvnw test -Dtest=ClassName      # Run specific test
 
 # Native Image (requires GraalVM)
-./mvnw clean package -Pnative     # Creates target/kafka-topology-viz
+./mvnw clean package -Pnative     # Creates target/kafka-streams-topology-viz
 
 # Run CLI
 java -jar target/kafka-streams-topology-viz-1.0.0-SNAPSHOT-cli.jar [options] <input>
@@ -253,7 +253,7 @@ Configuration files in `src/main/resources/META-INF/native-image/`:
 
 Build with: `./mvnw clean package -Pnative`
 
-Output: `target/kafka-topology-viz` (no JVM required)
+Output: `target/kafka-streams-topology-viz` (no JVM required)
 
 ## Library API Examples
 

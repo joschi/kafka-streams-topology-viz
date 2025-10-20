@@ -1,5 +1,4 @@
 project:
-  stereotype: CLI
   name: kafka-streams-topology-viz
   description: Library and CLI tool to visualize Kafka Streams topologies in various formats (Mermaid, GraphViz DOT)
   longDescription: |
@@ -14,6 +13,7 @@ project:
     - Jochen Schalanda
   license: Apache-2.0
   inceptionYear: "2025"
+  stereotype: CLI
   languages:
     java:
       version: "17"
@@ -21,8 +21,13 @@ project:
       artifactId: kafka-streams-topology-viz
       mainClass: com.github.joschi.kafka.topology.cli.TopologyVisualizerCLI
 
+platform:
+  replacements:
+    aarch_64: aarch64
+
 release:
   github:
+    owner: joschi
     overwrite: true
     changelog:
       formatted: ALWAYS
@@ -30,9 +35,35 @@ release:
       contributors:
         format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
 
-platform:
-  replacements:
-    aarch_64: aarch64
+assemble:
+  nativeImage:
+    kafka-streams-topology-viz:
+      exported: false
+      mainJar:
+        path: target/{{distributionName}}-{{projectVersion}}-cli.jar
+      graalJdks:
+        - path: '{{Env.GRAALVM_HOME}}'
+          platform: '{{Env.JRELEASER_PLATFORM}}'
+      archiving:
+        enabled: false
+      upx:
+        active: RELEASE
+        version: '5.0.2'
+
+distributions:
+  kafka-streams-topology-viz:
+    type: BINARY
+    artifacts:
+      - path: "target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-linux-aarch64"
+        platform: linux-aarch_64
+      - path: "target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-linux-x86_64"
+        platform: linux-x86_64
+      - path: "target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-osx-aarch64"
+        platform: osx-aarch_64
+  kafka-streams-topology-viz-jar:
+    type: SINGLE_JAR
+    artifacts:
+      - path: target/{{projectName}}-{{projectVersion}}-cli.jar
 
 signing:
   active: ALWAYS
@@ -44,38 +75,6 @@ deploy:
       sonatype:
         active: ALWAYS
         url: https://central.sonatype.com/api/v1/publisher
+        applyMavenCentralRules: true
         stagingRepositories:
           - target/staging-deploy
-        applyMavenCentralRules: true
-        sign: true
-        checksums: true
-        sourceJar: true
-        javadocJar: true
-
-assemble:
-  nativeImage:
-    kafka-topology-viz:
-      active: ALWAYS
-      exported: false
-      stereotype: CLI
-      java:
-        mainClass: com.github.joschi.kafka.topology.cli.TopologyVisualizerCLI
-      graalJdks:
-        - path: '{{Env.GRAALVM_HOME}}'
-          platform: '{{Env.JRELEASER_PLATFORM}}'
-      archiving:
-        enabled: true
-        format: ZIP
-      artifacts:
-        - path: target/kafka-streams-topology-viz-{{projectVersion}}-cli.jar
-      upx:
-        active: RELEASE
-        version: '4.2.4'
-
-distributions:
-  kafka-topology-viz:
-    type: NATIVE_IMAGE
-    executable:
-      name: kafka-topology-viz
-    artifacts:
-      - path: out/jreleaser/assemble/kafka-topology-viz/native-image/{{distributionName}}-{{projectEffectiveVersion}}-{{osPlatform}}-{{archName}}.zip

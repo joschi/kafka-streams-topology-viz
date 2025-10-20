@@ -25,9 +25,9 @@ jobs:
         uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: 'mandrel'
+          distribution: 'graalvm'
           cache: 'maven'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run tests
-        run: ./mvnw verify
+        run: ./mvnw --no-transfer-progress --batch-mode verify

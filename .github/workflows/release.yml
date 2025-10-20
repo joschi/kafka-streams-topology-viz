@@ -6,8 +6,44 @@ on:
       - 'v*'
 
 jobs:
+  build-jar:
+    name: Build JAR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
+        with:
+          java-version: '25'
+          distribution: 'graalvm'
+          cache: 'maven'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build JAR
+        shell: bash
+        # language=bash
+        run: |
+          ./mvnw --no-transfer-progress --batch-mode -Pshade 
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: kafka-streams-topology-viz-cli
+          path: target/kafka-streams-topology-viz-*-cli.jar
+          retention-days: 1
+          if-no-files-found: error
+
   build-native:
+    needs: [ build-jar ]
     name: Build Native Image (${{ matrix.os }}-${{ matrix.arch }})
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -20,9 +56,6 @@ jobs:
             os_name: linux
             arch: aarch64
           # macOS builds
-          - os: macos-15-intel
-            os_name: osx
-            arch: x86_64
           - os: macos-15
             os_name: osx
             arch: aarch64
@@ -32,54 +65,40 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
+      - name: Download CLI artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: kafka-streams-topology-viz-cli
+          path: target/
+
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
         with:
           java-version: '25'
-          distribution: 'mandrel'
-          components: 'native-image'
+          distribution: 'graalvm'
           cache: 'maven'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build JAR
-        run: ./mvnw --no-transfer-progress clean package -DskipTests
-
-      - name: Build Native Image (Linux x86_64)
-        if: matrix.os_name == 'linux' && matrix.arch == 'x86_64'
+      - name: Build Native Image (${{ matrix.os_name }}-${{ matrix.arch }})
+        env:
+          JRELEASER_PLATFORM: ${{ matrix.os_name }}-${{ matrix.arch }}
+          JRELEASER_ASSEMBLE_NATIVE_IMAGE_ACTIVE: ALWAYS
+        # language=bash
         run: |
           export GRAALVM_HOME=$JAVA_HOME
-          export JRELEASER_PLATFORM=linux-x86_64
-          ./mvnw --no-transfer-progress -Pnative -DskipTests package
-          ./mvnw --no-transfer-progress jreleaser:assemble -Djreleaser.select.current.platform
-
-      - name: Build Native Image (Linux aarch64)
-        if: matrix.os_name == 'linux' && matrix.arch == 'aarch64'
-        run: |
-          # For cross-compilation on Linux, we need to set up cross-compilation tools
-          # This is a simplified approach - for production, consider using Docker with proper cross-compilation support
-          export GRAALVM_HOME=$JAVA_HOME
-          export JRELEASER_PLATFORM=linux-aarch64
-          ./mvnw --no-transfer-progress -Pnative -DskipTests package
-          ./mvnw --no-transfer-progress jreleaser:assemble -Djreleaser.select.current.platform
-
-      - name: Build Native Image (macOS)
-        if: matrix.os_name == 'osx'
-        run: |
-          export GRAALVM_HOME=$JAVA_HOME
-          export JRELEASER_PLATFORM=${{ matrix.os_name }}-${{ matrix.arch }}
-          ./mvnw --no-transfer-progress -Pnative -DskipTests package
-          ./mvnw --no-transfer-progress jreleaser:assemble -Djreleaser.select.current.platform
+          ./mvnw --no-transfer-progress --batch-mode -Djreleaser.select.current.platform jreleaser:assemble 
 
       - name: Upload Native Image
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: native-image-${{ matrix.os_name }}-${{ matrix.arch }}
-          path: out/jreleaser/assemble/kafka-topology-viz/native-image/*.zip
+          path: target/jreleaser/assemble/kafka-streams-topology-viz/native-image/kafka-streams-topology-viz-${{ matrix.os_name }}-${{ matrix.arch }}
           retention-days: 1
+          if-no-files-found: error
 
   release:
     name: Create Release
-    needs: build-native
+    needs: [ build-jar, build-native ]
     runs-on: ubuntu-latest
 
     steps:
@@ -88,56 +107,53 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download all artifacts
+      - name: Download native artifacts
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
-          path: out/jreleaser/assemble/kafka-topology-viz/native-image/
+          pattern: native-image-*
+          path: target/jreleaser/assemble/kafka-streams-topology-viz/native-image/
+          merge-multiple: true
 
-      - name: Reorganize artifacts
-        run: |
-          mkdir -p artifacts
-          find out/jreleaser/assemble/kafka-topology-viz/native-image/ -name "*.zip" -exec mv {} artifacts/ \;
-          ls -la artifacts/
+      - name: Download CLI artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: kafka-streams-topology-viz-cli
+          path: target/
 
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
         with:
-          java-version: '17'
-          distribution: 'mandrel'
+          java-version: '25'
+          distribution: 'graalvm'
           cache: 'maven'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build project
-        run: ./mvnw --no-transfer-progress clean package -DskipTests
-
-      - name: Stage artifacts for Maven Central
+        # language=bash
         run: |
-          # Create staging directory
-          mkdir -p target/staging-deploy
+          ./mvnw --no-transfer-progress --batch-mode -Ppublication
 
-          # Copy the main JAR, sources, and javadoc
-          cp target/kafka-streams-topology-viz-*.jar target/staging-deploy/
-
-          # Remove the shaded CLI JAR from staging (we only want the original JAR)
-          rm -f target/staging-deploy/*-cli.jar
-
+      - name: Show staged artifacts for Maven Central
+        shell: bash
+        # language=bash
+        run: |
+          set -x
           ls -la target/staging-deploy/
+          ls -la target/jreleaser/assemble/kafka-streams-topology-viz/native-image/
 
       - name: Run JReleaser
+        shell: bash
         env:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          JRELEASER_MAVENCENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
-          JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
-          JRELEASER_GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
+          JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME }}
+          JRELEASER_MAVENCENTRAL_TOKEN: ${{ secrets.JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD }}
+          JRELEASER_GPG_PASSPHRASE: ${{ secrets.JRELEASER_GPG_PASSPHRASE }}
+          JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}
+          JRELEASER_GPG_SECRET_KEY: ${{ secrets.JRELEASER_GPG_SECRET_KEY }}
+        # language=bash
         run: |
-          # Move artifacts to the expected location
-          mkdir -p out/jreleaser/assemble/kafka-topology-viz/native-image
-          mv artifacts/*.zip out/jreleaser/assemble/kafka-topology-viz/native-image/
-
           # Run JReleaser full-release (includes GitHub release and Maven Central deployment)
-          ./mvnw --no-transfer-progress jreleaser:full-release
+          ./mvnw --no-transfer-progress --batch-mode jreleaser:full-release
 
       - name: JReleaser output
         if: always()
@@ -145,5 +161,5 @@ jobs:
         with:
           name: jreleaser-logs
           path: |
-            out/jreleaser/trace.log
-            out/jreleaser/output.properties
+            target/jreleaser/trace.log
+            target/jreleaser/output.properties

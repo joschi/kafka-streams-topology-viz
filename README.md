@@ -41,7 +41,7 @@ Build a native executable using GraalVM for faster startup and lower memory usag
 ./mvnw clean package -Pnative
 
 # The native executable will be created at:
-# target/kafka-topology-viz
+# target/kafka-streams-topology-viz
 ```
 
 **Benefits of Native Image:**
@@ -53,11 +53,11 @@ Build a native executable using GraalVM for faster startup and lower memory usag
 **Usage:**
 ```bash
 # Run the native executable directly
-./target/kafka-topology-viz topology.txt
+./target/kafka-streams-topology-viz topology.txt
 
 # Or install it to your PATH
-sudo cp target/kafka-topology-viz /usr/local/bin/
-kafka-topology-viz topology.txt
+sudo cp target/kafka-streams-topology-viz /usr/local/bin/
+kafka-streams-topology-viz topology.txt
 ```
 
 ## Usage

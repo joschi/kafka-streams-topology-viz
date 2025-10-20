@@ -20,7 +20,7 @@ import java.util.concurrent.Callable;
  * to various visualization formats.
  */
 @Command(
-    name = "kafka-topology-viz",
+    name = "kafka-streams-topology-viz",
     description = "Convert Kafka Streams topology to visualization formats (Mermaid, GraphViz DOT)",
     mixinStandardHelpOptions = true,
     version = "1.0.0"
