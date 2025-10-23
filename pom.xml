@@ -4,7 +4,7 @@
 
     <groupId>com.github.joschi</groupId>
     <artifactId>kafka-streams-topology-viz</artifactId>
-    <version>0.0.0-rc.1</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Kafka Streams Topology Visualizer</name>
@@ -31,7 +31,7 @@
         <connection>scm:git:git@github.com:joschi/kafka-streams-topology-viz.git</connection>
         <developerConnection>scm:git:git@github.com:joschi/kafka-streams-topology-viz.git</developerConnection>
         <url>https://github.com/joschi/kafka-streams-topology-viz</url>
-        <tag>v0.0.0-rc.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
