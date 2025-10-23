@@ -100,7 +100,8 @@ jobs:
     name: Create Release
     needs: [ build-jar, build-native ]
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -138,8 +139,8 @@ jobs:
         # language=bash
         run: |
           set -x
-          ls -la target/staging-deploy/
-          ls -la target/jreleaser/assemble/kafka-streams-topology-viz/native-image/
+          ls -laR target/staging-deploy/
+          ls -laR target/jreleaser/assemble/kafka-streams-topology-viz/native-image/
 
       - name: Run JReleaser
         shell: bash

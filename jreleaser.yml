@@ -52,7 +52,7 @@ assemble:
 
 distributions:
   kafka-streams-topology-viz:
-    type: BINARY
+    type: FLAT_BINARY
     artifacts:
       - path: "target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-linux-aarch64"
         platform: linux-aarch_64

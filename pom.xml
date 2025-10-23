@@ -62,6 +62,8 @@
         <junit.version>6.0.0</junit.version>
         <assertj.version>3.27.6</assertj.version>
         <jreleaser.version>1.20.0</jreleaser.version>
+
+        <mainClass>com.github.joschi.kafka.topology.cli.TopologyVisualizerCLI</mainClass>
     </properties>
 
     <dependencies>
@@ -133,7 +135,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.github.joschi.kafka.topology.cli.TopologyVisualizerCLI</mainClass>
+                            <mainClass>${mainClass}</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -155,7 +157,7 @@
                 <version>3.1.1</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
-                    <preparationGoals />
+                    <preparationGoals>validate</preparationGoals>
                 </configuration>
             </plugin>
         </plugins>
@@ -180,7 +182,7 @@
                                 <configuration>
                                     <transformers>
                                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <mainClass>com.github.joschi.kafka.topology.cli.TopologyVisualizerCLI</mainClass>
+                                            <mainClass>${mainClass}</mainClass>
                                         </transformer>
                                     </transformers>
                                     <finalName>${project.artifactId}-${project.version}-cli</finalName>
@@ -194,7 +196,7 @@
         <profile>
             <id>publication</id>
             <properties>
-                <altDeploymentRepository>local::file:./target/staging-deploy</altDeploymentRepository>
+                <altDeploymentRepository>local::file:${project.build.directory}/staging-deploy</altDeploymentRepository>
                 <skipTests>true</skipTests>
             </properties>
             <build>
