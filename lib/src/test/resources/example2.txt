@@ -1,0 +1,18 @@
+Topologies:
+   Sub-topology: 0
+    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])
+      --> KSTREAM-MAPVALUES-0000000001
+    Processor: KSTREAM-MAPVALUES-0000000001 (stores: [])
+      --> KSTREAM-FILTER-0000000002
+      <-- KSTREAM-SOURCE-0000000000
+    Processor: KSTREAM-FILTER-0000000002 (stores: [])
+      --> KSTREAM-SINK-0000000003
+      <-- KSTREAM-MAPVALUES-0000000001
+    Sink: KSTREAM-SINK-0000000003 (topic: output-topic)
+      <-- KSTREAM-FILTER-0000000002
+
+   Sub-topology: 1
+    Source: KSTREAM-SOURCE-0000000004 (topics: [another-topic])
+      --> KSTREAM-SINK-0000000005
+    Sink: KSTREAM-SINK-0000000005 (topic: result-topic)
+      <-- KSTREAM-SOURCE-0000000004

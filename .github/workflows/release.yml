@@ -29,7 +29,7 @@ jobs:
         shell: bash
         # language=bash
         run: |
-          ./mvnw --no-transfer-progress --batch-mode -Pshade 
+          ./mvnw --no-transfer-progress --batch-mode --also-make --projects cli --activate-profiles shade package 
 
       - name: Upload JAR
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -92,7 +92,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: native-image-${{ matrix.os_name }}-${{ matrix.arch }}
-          path: target/jreleaser/assemble/kafka-streams-topology-viz/native-image/kafka-streams-topology-viz-${{ matrix.os_name }}-${{ matrix.arch }}
+          path: cli/target/jreleaser/assemble/kafka-streams-topology-viz/native-image/kafka-streams-topology-viz-${{ matrix.os_name }}-${{ matrix.arch }}
           retention-days: 1
           if-no-files-found: error
 
@@ -132,15 +132,15 @@ jobs:
       - name: Build project
         # language=bash
         run: |
-          ./mvnw --no-transfer-progress --batch-mode -Ppublication
+          ./mvnw --no-transfer-progress --batch-mode --also-make lib --projects lib --activate-profiles publication
 
       - name: Show staged artifacts for Maven Central
         shell: bash
         # language=bash
         run: |
           set -x
-          ls -laR target/staging-deploy/
-          ls -laR target/jreleaser/assemble/kafka-streams-topology-viz/native-image/
+          ls -laR target/staging-deploy/ lib/target/staging-deploy
+          ls -laR cli/target/jreleaser/assemble/kafka-streams-topology-viz/native-image/
 
       - name: Run JReleaser
         shell: bash
