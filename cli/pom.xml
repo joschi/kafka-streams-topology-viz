@@ -17,10 +17,9 @@
     <description>CLI tool to visualize Kafka Streams topologies in various formats (Mermaid, GraphViz DOT)</description>
 
     <properties>
-        <!-- Dependency versions -->
         <picocli.version>4.7.7</picocli.version>
-
         <mainClass>com.github.joschi.kafka.topology.cli.TopologyVisualizerCLI</mainClass>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <dependencies>
@@ -97,6 +96,7 @@
                                     <goal>shade</goal>
                                 </goals>
                                 <configuration>
+                                    <finalName>kafka-streams-topology-viz-${project.version}</finalName>
                                     <transformers>
                                         <transformer
                                                 implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">

@@ -40,7 +40,7 @@ assemble:
     kafka-streams-topology-viz:
       exported: false
       mainJar:
-        path: target/{{distributionName}}-{{projectVersion}}-cli.jar
+        path: cli/target/{{distributionName}}-{{projectVersion}}.jar
       graalJdks:
         - path: '{{Env.GRAALVM_HOME}}'
           platform: '{{Env.JRELEASER_PLATFORM}}'

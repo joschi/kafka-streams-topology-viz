@@ -35,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: kafka-streams-topology-viz-cli
-          path: target/kafka-streams-topology-viz-*-cli.jar
+          path: cli/target/kafka-streams-topology-viz-*.jar
           retention-days: 1
           if-no-files-found: error
 
@@ -69,7 +69,7 @@ jobs:
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: kafka-streams-topology-viz-cli
-          path: target/
+          path: cli/target/
 
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
@@ -112,14 +112,14 @@ jobs:
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           pattern: native-image-*
-          path: target/jreleaser/assemble/kafka-streams-topology-viz/native-image/
+          path: cli/target/jreleaser/assemble/kafka-streams-topology-viz/native-image/
           merge-multiple: true
 
       - name: Download CLI artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: kafka-streams-topology-viz-cli
-          path: target/
+          path: cli/target/
 
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df # v1.4.1
@@ -140,7 +140,7 @@ jobs:
         run: |
           set -x
           ls -laR target/staging-deploy/ lib/target/staging-deploy
-          ls -laR cli/target/jreleaser/assemble/kafka-streams-topology-viz/native-image/
+          ls -laR cli/target
 
       - name: Run JReleaser
         shell: bash
