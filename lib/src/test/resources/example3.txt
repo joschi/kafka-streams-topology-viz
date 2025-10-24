@@ -1,0 +1,80 @@
+Topologies:
+   Sub-topology: 0
+    Source: signals-subscriptions-v1-repartition-source (topics: [signals-subscriptions-v1-repartition])
+      --> join-signals-subscriptions
+    Processor: join-signals-subscriptions (stores: [subscriptions-v1-store])
+      --> increment-pre-evaluation-signals-counter
+      <-- signals-subscriptions-v1-repartition-source
+    Processor: increment-pre-evaluation-signals-counter (stores: [])
+      --> evaluate-signals
+      <-- join-signals-subscriptions
+    Processor: evaluate-signals (stores: [subscriptions-v1-store])
+      --> evaluated-signals-
+      <-- increment-pre-evaluation-signals-counter
+    Processor: evaluated-signals- (stores: [])
+      --> evaluated-signals-failure, evaluated-signals-success
+      <-- evaluate-signals
+    Processor: evaluated-signals-success (stores: [])
+      --> unwrap-success
+      <-- evaluated-signals-
+    Processor: unwrap-success (stores: [])
+      --> filter-billing-threshold-exceeded, evaluated-signals-subscriptions-sink, transform-notifications
+      <-- evaluated-signals-success
+    Processor: evaluated-signals-failure (stores: [])
+      --> unwrap-failure
+      <-- evaluated-signals-
+    Processor: filter-billing-threshold-exceeded (stores: [])
+      --> create-billing-threshold-exceeded-event
+      <-- unwrap-success
+    Processor: create-billing-threshold-exceeded-event (stores: [])
+      --> billing-threshold-exceeded-sink
+      <-- filter-billing-threshold-exceeded
+    Source: subscriptions-source (topics: [subscriptions-v1])
+      --> subscriptions-table
+    Processor: transform-notifications (stores: [])
+      --> KSTREAM-SINK-0000000021
+      <-- unwrap-success
+    Processor: unwrap-failure (stores: [])
+      --> aggregated-signals-dlq-sink
+      <-- evaluated-signals-failure
+    Sink: KSTREAM-SINK-0000000021 (topic: notifications)
+      <-- transform-notifications
+    Sink: aggregated-signals-dlq-sink (topic: aggregated-signals-v1-dlq)
+      <-- unwrap-failure
+    Sink: billing-threshold-exceeded-sink (topic: billing-threshold-exceeded-v1)
+      <-- create-billing-threshold-exceeded-event
+    Sink: evaluated-signals-subscriptions-sink (topic: evaluated-signals-v1)
+      <-- unwrap-success
+    Processor: subscriptions-table (stores: [subscriptions-v1-store])
+      --> none
+      <-- subscriptions-source
+
+  Sub-topology: 1
+    Source: signals-source (topics: [accounting-signals-v1])
+      --> increment-consumed-signals-counter
+    Processor: increment-consumed-signals-counter (stores: [])
+      --> signals-table
+      <-- signals-source
+    Processor: signals-table (stores: [aggregated-signals-v1-store])
+      --> suppress-window-v1
+      <-- increment-consumed-signals-counter
+    Processor: suppress-window-v1 (stores: [suppress-window-v1-store])
+      --> remove-heartbeats
+      <-- signals-table
+    Processor: remove-heartbeats (stores: [])
+      --> windowed-aggregated-signals
+      <-- suppress-window-v1
+    Processor: windowed-aggregated-signals (stores: [])
+      --> unwrap-windowed-key
+      <-- remove-heartbeats
+    Processor: unwrap-windowed-key (stores: [])
+      --> increment-aggregated-signals-counter
+      <-- windowed-aggregated-signals
+    Processor: increment-aggregated-signals-counter (stores: [])
+      --> signals-subscriptions-v1-repartition-filter
+      <-- unwrap-windowed-key
+    Processor: signals-subscriptions-v1-repartition-filter (stores: [])
+      --> signals-subscriptions-v1-repartition-sink
+      <-- increment-aggregated-signals-counter
+    Sink: signals-subscriptions-v1-repartition-sink (topic: signals-subscriptions-v1-repartition)
+      <-- signals-subscriptions-v1-repartition-filter

@@ -54,16 +54,16 @@ distributions:
   kafka-streams-topology-viz:
     type: FLAT_BINARY
     artifacts:
-      - path: "target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-linux-aarch64"
+      - path: "cli/target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-linux-aarch64"
         platform: linux-aarch_64
-      - path: "target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-linux-x86_64"
+      - path: "cli/target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-linux-x86_64"
         platform: linux-x86_64
-      - path: "target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-osx-aarch64"
+      - path: "cli/target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-osx-aarch64"
         platform: osx-aarch_64
   kafka-streams-topology-viz-jar:
     type: SINGLE_JAR
     artifacts:
-      - path: target/{{projectName}}-{{projectVersion}}-cli.jar
+      - path: cli/target/{{projectName}}-{{projectVersion}}.jar
 
 signing:
   active: ALWAYS
@@ -78,3 +78,4 @@ deploy:
         applyMavenCentralRules: true
         stagingRepositories:
           - target/staging-deploy
+          - lib/target/staging-deploy
