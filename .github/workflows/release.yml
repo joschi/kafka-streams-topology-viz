@@ -29,7 +29,7 @@ jobs:
         shell: bash
         # language=bash
         run: |
-          ./mvnw --no-transfer-progress --batch-mode --also-make --projects cli --activate-profiles shade package 
+          ./mvnw --no-transfer-progress --batch-mode --also-make --projects cli package 
 
       - name: Upload JAR
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -54,11 +54,11 @@ jobs:
             arch: x86_64
           - os: ubuntu-24.04-arm
             os_name: linux
-            arch: aarch64
+            arch: aarch_64
           # macOS builds
           - os: macos-15
             os_name: osx
-            arch: aarch64
+            arch: aarch_64
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -80,19 +80,16 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Native Image (${{ matrix.os_name }}-${{ matrix.arch }})
-        env:
-          JRELEASER_PLATFORM: ${{ matrix.os_name }}-${{ matrix.arch }}
-          JRELEASER_ASSEMBLE_NATIVE_IMAGE_ACTIVE: ALWAYS
         # language=bash
         run: |
           export GRAALVM_HOME=$JAVA_HOME
-          ./mvnw --no-transfer-progress --batch-mode -Djreleaser.select.current.platform jreleaser:assemble 
+          ./mvnw --no-transfer-progress --batch-mode --also-make --projects cli --activate-profiles native package 
 
       - name: Upload Native Image
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: native-image-${{ matrix.os_name }}-${{ matrix.arch }}
-          path: cli/target/jreleaser/assemble/kafka-streams-topology-viz/native-image/kafka-streams-topology-viz-${{ matrix.os_name }}-${{ matrix.arch }}
+          path: cli/target/kafka-streams-topology-viz-${{ matrix.os_name }}-${{ matrix.arch }}-*
           retention-days: 1
           if-no-files-found: error
 
@@ -112,7 +109,7 @@ jobs:
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           pattern: native-image-*
-          path: cli/target/jreleaser/assemble/kafka-streams-topology-viz/native-image/
+          path: cli/target/
           merge-multiple: true
 
       - name: Download CLI artifact
@@ -132,14 +129,14 @@ jobs:
       - name: Build project
         # language=bash
         run: |
-          ./mvnw --no-transfer-progress --batch-mode --also-make lib --projects lib --activate-profiles publication
+          ./mvnw --no-transfer-progress --batch-mode --also-make --projects lib --activate-profiles publication
 
       - name: Show staged artifacts for Maven Central
         shell: bash
         # language=bash
         run: |
           set -x
-          ls -laR target/staging-deploy/ lib/target/staging-deploy
+          ls -laR target/staging-deploy/
           ls -laR cli/target
 
       - name: Run JReleaser

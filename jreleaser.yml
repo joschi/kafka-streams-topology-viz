@@ -19,11 +19,6 @@ project:
       version: "17"
       groupId: com.github.joschi
       artifactId: kafka-streams-topology-viz
-      mainClass: com.github.joschi.kafka.topology.cli.TopologyVisualizerCLI
-
-platform:
-  replacements:
-    aarch_64: aarch64
 
 release:
   github:
@@ -35,30 +30,15 @@ release:
       contributors:
         format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
 
-assemble:
-  nativeImage:
-    kafka-streams-topology-viz:
-      exported: false
-      mainJar:
-        path: cli/target/{{distributionName}}-{{projectVersion}}.jar
-      graalJdks:
-        - path: '{{Env.GRAALVM_HOME}}'
-          platform: '{{Env.JRELEASER_PLATFORM}}'
-      archiving:
-        enabled: false
-      upx:
-        active: RELEASE
-        version: '5.0.2'
-
 distributions:
   kafka-streams-topology-viz:
     type: FLAT_BINARY
     artifacts:
-      - path: "cli/target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-linux-aarch64"
+      - path: "cli/target/{{projectName}}-linux-aarch_64-{{projectVersion}}"
         platform: linux-aarch_64
-      - path: "cli/target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-linux-x86_64"
+      - path: "cli/target/{{projectName}}-linux-x86_64-{{projectVersion}}"
         platform: linux-x86_64
-      - path: "cli/target/jreleaser/assemble/{{projectName}}/native-image/{{projectName}}-osx-aarch64"
+      - path: "cli/target/{{projectName}}-osx-aarch_64-{{projectVersion}}"
         platform: osx-aarch_64
   kafka-streams-topology-viz-jar:
     type: SINGLE_JAR
@@ -78,4 +58,3 @@ deploy:
         applyMavenCentralRules: true
         stagingRepositories:
           - target/staging-deploy
-          - lib/target/staging-deploy

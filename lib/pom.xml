@@ -15,6 +15,7 @@
 
     <name>Kafka Streams Topology Visualizer</name>
     <description>Library to visualize Kafka Streams topologies in various formats (Mermaid, GraphViz DOT)</description>
+    <url>https://github.com/joschi/kafka-streams-topology-viz</url>
 
     <properties>
         <!-- Dependency versions -->
@@ -70,4 +71,14 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>publication</id>
+            <properties>
+                <altDeploymentRepository>local::file:${project.parent.build.directory}/staging-deploy</altDeploymentRepository>
+                <skipTests>true</skipTests>
+            </properties>
+        </profile>
+    </profiles>
 </project>
